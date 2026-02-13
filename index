@@ -1,7 +1,361 @@
-# Updated Cat Features
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>your cat 🐱💖</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+  /* GENERAL RESET */
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
 
-## Cat Color
-The cat is now black.
+  body {
+    min-height: 100vh;
+    display: grid;
+    place-items: center;
+    font-family: 'Comic Sans MS', 'Trebuchet MS', sans-serif;
+    background: linear-gradient(135deg, #ffe6eb, #fff0f5);
+    padding: 1rem;
+  }
 
-## Feeding Feature
-A new feeding feature has been added to allow you to feed your cat at scheduled intervals!
+  .card {
+    background: rgba(255,255,255,0.9);
+    backdrop-filter: blur(6px);
+    padding: 2rem 2.5rem;
+    border-radius: 20px;
+    text-align: center;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+    width: 360px;
+    position: relative;
+  }
+
+  h1 {
+    font-size: 1.6rem;
+    color: #222;
+    margin-bottom: 0.2rem;
+  }
+
+  p.subtitle {
+    font-size: 0.95rem;
+    color: #ff6b8a;
+    margin-bottom: 1rem;
+    opacity: 0.9;
+  }
+
+  /* CAT (SVG) */
+  .cat-wrap {
+    display: inline-block;
+    position: relative;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .cat-svg {
+    width: 110px;
+    height: 110px;
+    transition: transform 0.18s ease;
+    display: block;
+  }
+
+  .cat-wrap:hover .cat-svg {
+    transform: rotate(-8deg) scale(1.06);
+  }
+
+  .cat-wrap:active .cat-svg {
+    transform: rotate(8deg) scale(1.08);
+  }
+
+  /* black cat - fill is black, eyes are light */
+  .cat-face { fill: #0b0b0b; }
+  .cat-eye { fill: #fff9; }
+  .cat-pupil { fill: #222; }
+
+  /* FLOATING HEARTS */
+  .hearts {
+    position: absolute;
+    left: 50%;
+    top: -10px;
+    transform: translateX(-50%);
+    pointer-events: none;
+  }
+  .hearts span {
+    position: absolute;
+    font-size: 1.2rem;
+    opacity: 0;
+    transform: translateY(0) scale(0.9);
+  }
+
+  .cat-wrap:hover .hearts span {
+    animation: float 1.2s ease-out forwards;
+  }
+
+  .heart1 { left: -26px; top: -8px; animation-delay: 0s; }
+  .heart2 { left: 10px; top: -22px; animation-delay: 0.12s; }
+  .heart3 { left: -6px; top: -28px; animation-delay: 0.25s; }
+  .heart4 { left: 28px; top: -6px; animation-delay: 0.35s; }
+
+  @keyframes float {
+    0% { transform: translateY(0) scale(0.9); opacity: 1; }
+    100% { transform: translateY(-50px) scale(1.1); opacity: 0; }
+  }
+
+  /* STATUS & FEED UI */
+  .status {
+    margin-top: 0.8rem;
+    font-size: 0.98rem;
+    color: #ff4d6d;
+    min-height: 1.2em;
+  }
+
+  .controls {
+    margin-top: 1rem;
+    display: flex;
+    gap: 0.6rem;
+    justify-content: center;
+    align-items: center;
+  }
+
+  button {
+    background: linear-gradient(180deg,#fff,#ffeef2);
+    border: 1px solid rgba(255,77,109,0.15);
+    color: #aa1144;
+    padding: 0.5rem 0.9rem;
+    border-radius: 10px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform .12s ease, box-shadow .12s ease;
+  }
+
+  button:active { transform: translateY(2px); }
+  button[disabled] { opacity: 0.6; cursor: not-allowed; }
+
+  /* small bowl feed animation */
+  .feed-animate {
+    animation: pop 0.6s ease;
+  }
+  @keyframes pop {
+    0% { transform: scale(1); }
+    60% { transform: scale(1.18); }
+    100% { transform: scale(1); }
+  }
+
+  .meta {
+    margin-top: 0.6rem;
+    color: #555;
+    font-size: 0.85rem;
+  }
+
+  /* CAT LEVEL */
+  .cat-level {
+    margin-top: 0.6rem;
+    font-size: 2.4rem;
+    height: 2.6rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: transform 0.2s ease;
+  }
+
+  .valentine {
+    display: none;
+    font-size: 0.95rem;
+    margin-top: 0.7rem;
+    color: #ff4d6d;
+    animation: fadeIn 0.8s forwards;
+  }
+
+  .show { display: block; }
+
+  @keyframes fadeIn {
+    0% {opacity: 0;}
+    100% {opacity:1;}
+  }
+
+  /* small responsive adjustments */
+  @media (max-width: 420px) {
+    .card { width: 100%; padding: 1.4rem; }
+    .cat-svg { width: 92px; height: 92px; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="card" aria-live="polite">
+    <h1>Your Cat 🐱</h1>
+    <p class="subtitle">Hover or click the cat. Feed it to make it happier!</p>
+
+    <!-- INTERACTIVE CAT -->
+    <div class="cat-wrap" id="catWrap" title="Pet the cat">
+      <!-- simple black cat SVG -->
+      <svg class="cat-svg" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Black cat">
+        <!-- ears -->
+        <polygon class="cat-face" points="20,30 34,8 46,34"/>
+        <polygon class="cat-face" points="100,30 86,8 74,34"/>
+        <!-- head -->
+        <ellipse class="cat-face" cx="60" cy="62" rx="36" ry="34"/>
+        <!-- eyes -->
+        <ellipse class="cat-eye" cx="46" cy="60" rx="8" ry="10"/>
+        <ellipse class="cat-eye" cx="74" cy="60" rx="8" ry="10"/>
+        <ellipse class="cat-pupil" cx="46" cy="63" rx="4" ry="6"/>
+        <ellipse class="cat-pupil" cx="74" cy="63" rx="4" ry="6"/>
+        <!-- nose / mouth -->
+        <path d="M60 74 q6 6 12 2" stroke="#ffb3c4" stroke-width="2" fill="none" stroke-linecap="round"/>
+        <path d="M60 74 q-6 6 -12 2" stroke="#ffb3c4" stroke-width="2" fill="none" stroke-linecap="round"/>
+      </svg>
+
+      <!-- hearts (floating on hover) -->
+      <div class="hearts" aria-hidden="true">
+        <span class="heart1">💗</span>
+        <span class="heart2">💖</span>
+        <span class="heart3">💗</span>
+        <span class="heart4">💖</span>
+      </div>
+    </div>
+
+    <!-- CAT LEVEL / EXPRESSION -->
+    <div class="cat-level" id="catLevel" aria-hidden="false">😺</div>
+
+    <div class="status" id="status">The cat is watching you lovingly…</div>
+
+    <!-- CONTROLS: Feed, Pet -->
+    <div class="controls">
+      <button id="feedBtn" aria-pressed="false" title="Feed the cat">Feed 🥣</button>
+      <button id="petBtn" title="Pet the cat">Pet 🐾</button>
+    </div>
+
+    <div class="meta" id="meta">Meals fed: 0 · Last fed: never</div>
+
+    <!-- FINAL VALENTINE MESSAGE -->
+    <div class="valentine" id="valentine">
+      💌 The cat says: "You make the world softer. Will you be my Valentine? 🐾💘"
+    </div>
+
+  </div>
+
+<script>
+(function(){
+  // state
+  const FEED_COOLDOWN_MS = 10 * 1000; // 10s demo cooldown (adjust as needed)
+  const AFFECTION_TO_LEVEL_UP = 3;    // meals needed to change expression
+  const SHOW_VALENTINE_MEALS = 5;     // meals threshold to reveal valentine
+
+  const feedBtn = document.getElementById('feedBtn');
+  const petBtn = document.getElementById('petBtn');
+  const statusEl = document.getElementById('status');
+  const metaEl = document.getElementById('meta');
+  const catLevelEl = document.getElementById('catLevel');
+  const valentineEl = document.getElementById('valentine');
+  const catWrap = document.getElementById('catWrap');
+
+  let meals = parseInt(localStorage.getItem('meals') || '0', 10);
+  let lastFed = parseInt(localStorage.getItem('lastFed') || '0', 10);
+  let affection = parseInt(localStorage.getItem('affection') || '0', 10);
+
+  function updateMeta() {
+    const lastText = lastFed ? timeAgo(lastFed) + ' ago' : 'never';
+    metaEl.textContent = `Meals fed: ${meals} · Last fed: ${lastText}`;
+  }
+
+  function timeAgo(ts) {
+    const s = Math.floor((Date.now() - ts) / 1000);
+    if (s < 60) return s + 's';
+    const m = Math.floor(s/60);
+    if (m < 60) return m + 'm';
+    const h = Math.floor(m/60);
+    return h + 'h';
+  }
+
+  function canFeed() {
+    return (Date.now() - lastFed) >= FEED_COOLDOWN_MS;
+  }
+
+  function updateUI() {
+    // level expression
+    catLevelEl.textContent = affection >= AFFECTION_TO_LEVEL_UP ? '😻' : '😺';
+    // show valentine if enough meals fed
+    if (meals >= SHOW_VALENTINE_MEALS) valentineEl.classList.add('show');
+    else valentineEl.classList.remove('show');
+
+    // disable feed button when on cooldown
+    if (!canFeed()) {
+      const seconds = Math.ceil((FEED_COOLDOWN_MS - (Date.now() - lastFed)) / 1000);
+      feedBtn.disabled = true;
+      feedBtn.textContent = `Wait ${seconds}s ⏳`;
+    } else {
+      feedBtn.disabled = false;
+      feedBtn.textContent = 'Feed 🥣';
+    }
+    updateMeta();
+  }
+
+  function saveState() {
+    localStorage.setItem('meals', String(meals));
+    localStorage.setItem('lastFed', String(lastFed));
+    localStorage.setItem('affection', String(affection));
+  }
+
+  feedBtn.addEventListener('click', () => {
+    if (!canFeed()) {
+      statusEl.textContent = 'The cat is not hungry yet — give it a moment.';
+      return;
+    }
+    // feed animation & state updates
+    meals += 1;
+    lastFed = Date.now();
+    affection = Math.min(affection + 1, 9999);
+    saveState();
+    statusEl.textContent = '😺 Yum! That was delicious!';
+    feedBtn.classList.add('feed-animate');
+    setTimeout(()=> feedBtn.classList.remove('feed-animate'), 500);
+    updateUI();
+  });
+
+  // pet interaction: small affection boost and heart burst
+  petBtn.addEventListener('click', () => {
+    affection += 1;
+    saveState();
+    statusEl.textContent = 'Purr~ Thank you for the pets!';
+    // small heart pop
+    const heart = document.createElement('span');
+    heart.textContent = '💗';
+    heart.style.position = 'absolute';
+    heart.style.left = Math.random() * 60 + 'px';
+    heart.style.top = '-10px';
+    heart.style.fontSize = '1.1rem';
+    heart.style.opacity = '1';
+    heart.style.transition = 'transform 0.9s ease, opacity 0.9s ease';
+    const hearts = document.querySelector('.hearts');
+    hearts.appendChild(heart);
+    setTimeout(()=> {
+      heart.style.transform = 'translateY(-50px) scale(1.2)';
+      heart.style.opacity = '0';
+    }, 10);
+    setTimeout(()=> heart.remove(), 1000);
+    updateUI();
+  });
+
+  // pet by clicking the cat as well
+  catWrap.addEventListener('click', () => {
+    petBtn.click();
+  });
+
+  // periodic UI refresh for cooldown counter
+  setInterval(updateUI, 1000);
+
+  // initial render
+  updateUI();
+
+  // expose for debugging (optional)
+  window._yourCat = {
+    feed: () => feedBtn.click(),
+    pet: () => petBtn.click(),
+    state: () => ({meals, lastFed, affection})
+  };
+})();
+</script>
+
+</body>
+</html>
