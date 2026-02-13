@@ -6,8 +6,6 @@
 <title>Your Cat 🐱💖</title>
 
 <style>
-
-/* ===== THEME ===== */
 :root{
   --bg:linear-gradient(135deg,#ffe6eb,#fff0f5);
   --card:#ffffffd9;
@@ -44,7 +42,7 @@ body{
   color:var(--text);
 }
 
-/* ===== CAT ===== */
+/* CAT */
 .cat-wrap{
   cursor:pointer;
   position:relative;
@@ -57,33 +55,26 @@ body{
 }
 
 .cat-svg{width:130px;}
-
 .cat-face{fill:#111;}
 .cat-eye{fill:white;}
 .cat-pupil{fill:#222;}
 .cat-blush{fill:#ff9bb0;opacity:.7}
-.cat-mouth{stroke:#ff7b9c;stroke-width:2;fill:none;stroke-linecap:round;}
+.cat-mouth{stroke:#ff7b9c;stroke-width:2;fill:none;}
 .whisker{stroke:white;stroke-width:2;opacity:.8}
 
-.whisker-group{
-  animation:wiggle 3s infinite;
-}
-
+.whisker-group{animation:wiggle 3s infinite;}
 @keyframes wiggle{
   0%,100%{transform:rotate(0deg);}
   50%{transform:rotate(2deg);}
 }
 
-/* blinking */
-.blink{
-  animation:blink 4s infinite;
-}
+.blink{animation:blink 4s infinite;}
 @keyframes blink{
   0%,95%,100%{transform:scaleY(1);}
   97%{transform:scaleY(.1);}
 }
 
-/* ===== BARS ===== */
+/* BARS */
 .bar{
   height:10px;
   border-radius:20px;
@@ -102,7 +93,7 @@ body{
   background:linear-gradient(90deg,#ff7b9c,#ff4d6d);
 }
 
-/* ===== BUTTONS ===== */
+/* BUTTONS */
 .controls{
   display:flex;
   gap:.5rem;
@@ -119,14 +110,14 @@ button{
   cursor:pointer;
 }
 
-/* ===== TEXT ===== */
+/* TEXT */
 .status{margin-top:.5rem;color:var(--accent);}
 .sweet{margin-top:.4rem;font-size:.9rem;opacity:0;transition:.3s;}
 .sweet.show{opacity:1;}
 .meta{font-size:.8rem;margin-top:.4rem;opacity:.7;}
 .level{font-size:2.3rem;margin-top:.4rem}
 
-/* ===== NOTIFICATION ===== */
+/* NOTIFICATION */
 .notify{
   position:fixed;
   top:20px;
@@ -147,7 +138,7 @@ button{
   top:40px;
 }
 
-/* ===== HEARTS ===== */
+/* HEARTS */
 .particle{
   position:absolute;
   animation:float 1s forwards;
@@ -157,34 +148,27 @@ button{
   from{opacity:1;transform:translateY(0);}
   to{opacity:0;transform:translateY(-60px);}
 }
-
 </style>
 </head>
 
 <body>
 
-<div class="notify" id="notify">💌 I love you Tala 💖</div>
+<div class="notify" id="notify">💌 I love you Tala, Happy Valentine's Day  💖</div>
 
 <div class="card">
 
 <h2>Your Cat 🐱</h2>
 
 <div class="cat-wrap" id="cat">
-
 <svg class="cat-svg" viewBox="0 0 120 120">
 
-<!-- ears -->
 <polygon class="cat-face" points="20,30 34,5 48,32"/>
 <polygon class="cat-face" points="100,30 86,5 72,32"/>
-
-<!-- head -->
 <ellipse class="cat-face" cx="60" cy="65" rx="40" ry="36"/>
 
-<!-- blush -->
 <ellipse class="cat-blush" cx="34" cy="72" rx="7" ry="4"/>
 <ellipse class="cat-blush" cx="86" cy="72" rx="7" ry="4"/>
 
-<!-- whiskers -->
 <g class="whisker-group">
   <line class="whisker" x1="25" y1="70" x2="45" y2="70"/>
   <line class="whisker" x1="25" y1="75" x2="45" y2="73"/>
@@ -192,7 +176,6 @@ button{
   <line class="whisker" x1="75" y1="73" x2="95" y2="75"/>
 </g>
 
-<!-- eyes -->
 <g class="blink">
 <ellipse class="cat-eye" cx="44" cy="60" rx="11" ry="13"/>
 <ellipse class="cat-eye" cx="76" cy="60" rx="11" ry="13"/>
@@ -200,7 +183,6 @@ button{
 <ellipse class="cat-pupil" cx="76" cy="63" rx="5" ry="7"/>
 </g>
 
-<!-- mouth -->
 <path class="cat-mouth" d="M55 76 Q60 80 65 76"/>
 
 </svg>
@@ -236,9 +218,6 @@ const SWEET_MESSAGES=[
 "Thank you for every pet."
 ];
 
-const MAX_HUNGER=100;
-const FEED_GAIN=35;
-
 const el=id=>document.getElementById(id);
 
 const hungerFill=el("hungerFill");
@@ -253,14 +232,9 @@ const cat=el("cat");
 let hunger=+localStorage.hunger||80;
 let meals=+localStorage.meals||0;
 let affection=+localStorage.affection||0;
-let loveShown=localStorage.loveShown==="true";
 
-/* ===== NOTIFICATION FIX ===== */
+/* NOTIFICATION EVERY 3 FEEDINGS */
 function showLoveNotification(){
-  if(loveShown) return;
-  loveShown=true;
-  localStorage.loveShown=true;
-
   notify.classList.add("show");
   setTimeout(()=>notify.classList.remove("show"),3500);
 }
@@ -308,7 +282,7 @@ function updateUI(){
 }
 
 feed.onclick=()=>{
-  hunger=Math.min(MAX_HUNGER,hunger+FEED_GAIN);
+  hunger=Math.min(100,hunger+35);
   meals++;
   affection+=15;
 
@@ -317,7 +291,10 @@ feed.onclick=()=>{
   beep(700);
   hearts();
 
-  if(meals>=3) showLoveNotification();
+  /* 🔥 SHOW EVERY MULTIPLE OF 3 */
+  if(meals % 3 === 0){
+    showLoveNotification();
+  }
 
   updateUI();
 };
